@@ -1,0 +1,34 @@
+# 8INF867 - TP1.
+#
+#   docker compose up --build
+#
+# Sous Linux, si le depot n'est pas lisible par l'utilisateur 1000 :
+#   TP_UID=$(id -u) TP_GID=$(id -g) docker compose up --build
+name: tp1-8inf867
+
+services:
+  tests:
+    build: .
+    image: tp1-8inf867
+    command: ["tests"]
+    volumes:
+      - ${STUDENT_DIR:-.}:/student:ro
+    user: "${TP_UID:-1000}:${TP_GID:-1000}"
+    environment:
+      TP_TIMEOUT: "900"
+      TP_PYTEST_ARGS: "${TP_PYTEST_ARGS:-}"
+      OMP_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "2"
+    network_mode: none
+    read_only: true
+    tmpfs:
+      - /run/tp:uid=${TP_UID:-1000},gid=${TP_GID:-1000},mode=0755,size=512m
+      - /tmp:size=64m
+    mem_limit: 2g
+    memswap_limit: 2g
+    cpus: 2
+    pids_limit: 256
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
